@@ -1,4 +1,5 @@
 import sys, os
+import seaborn as sns
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pandas as pd
@@ -8,7 +9,6 @@ from factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sp
 from factor_analyzer import FactorAnalyzer
 import matplotlib.pyplot as plt
 # 设置字体
-plt.rcParams['font.family'] = 'SimHei'  # 使用黑体字体，或选择其他支持中文的字体
 
 from utils import get_year_df,get_X_scale,get_factor_scores
 
@@ -70,11 +70,11 @@ def see_weight():
         print(sorted_table)
         
 def plot_scatter(factor_scores_df,left_year,right_year,save_path):
-    # TODO 美化格式修改这个函数
+    # TODO 美化格式修改这个函数  Re:没什么好美化的
     plt.figure(figsize=(12, 8))
 
     # 散点图
-    plt.scatter(factor_scores_df["Factor1"], factor_scores_df["Factor2"], color='skyblue', edgecolors='k')
+    plt.scatter(factor_scores_df["Factor1"], factor_scores_df["Factor2"], color='#2E8B57', edgecolors='k', alpha=0.9)
 
     # 加标签（只标出极端值，避免太乱）
     for country in factor_scores_df.index:
@@ -87,10 +87,10 @@ def plot_scatter(factor_scores_df,left_year,right_year,save_path):
     plt.axhline(0, color='gray', linestyle='--')  # 水平轴
     plt.axvline(0, color='gray', linestyle='--')  # 垂直轴
 
-    plt.title(f"Factor1 vs Factor2 因子得分散点图({left_year} - {right_year})", fontsize=16)
-    plt.xlabel("Factor1：消费与服务主导", fontsize=12)
-    plt.ylabel("Factor2：农业与人口主导", fontsize=12)
-    plt.grid(True)
+    plt.title(f"Factor1 vs Factor2 因子得分散点图({left_year} - {right_year})", fontsize=18, weight='bold')
+    plt.xlabel("Factor1：消费与服务主导", fontsize=14)
+    plt.ylabel("Factor2：农业与人口主导", fontsize=14)
+    plt.grid(True, linestyle='--', alpha=0.5)
     plt.tight_layout()
     # 保存图片到指定路径（支持 .png, .jpg, .pdf 等）
     plt.savefig(save_path, dpi=300, bbox_inches='tight')  # dpi 可调节清晰度
@@ -104,8 +104,9 @@ def draw_scatter(left_year, right_year, save_dir):
     
 
 if __name__ =="__main__":
+    plt.rcParams['font.family'] = 'SimHei'  # 使用黑体字体，或选择其他支持中文的字体
     see_weight()
-    save_dir = "fig_tmp_gzh\\factor_scatter"
+    save_dir = "fig_tmp_lst\\factor_scatter"
     for left_year in range(1992,2017):
         right_year = left_year+5
         draw_scatter(left_year,right_year,save_dir)
