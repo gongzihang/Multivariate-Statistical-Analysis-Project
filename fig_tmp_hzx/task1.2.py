@@ -29,7 +29,7 @@ X_pca = pca.fit_transform(X_scaled)
 # === 第六步：KMeans聚类分析（设定k=4）===
 k = 4
 kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-clusters = kmeans.fit_predict(X_pca) + 1
+clusters = kmeans.fit_predict(X_pca)
 
 # === 第七步：生成聚类结果DataFrame并保存 ===
 cluster_df = pd.DataFrame(X_pca, columns=[f'PC{i+1}' for i in range(X_pca.shape[1])])
