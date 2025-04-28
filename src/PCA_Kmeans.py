@@ -29,7 +29,7 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(df_grouped)
 
 # === 第五步：主成分分析（PCA）保留95%信息 ===
-pca = PCA(n_components=0.95)
+pca = PCA(n_components=0.85)
 X_pca = pca.fit_transform(X_scaled)
 
 # 打印降维后维度信息
@@ -45,6 +45,7 @@ clusters = kmeans.fit_predict(X_pca)
 cluster_df = pd.DataFrame(X_pca, columns=[f'PC{i+1}' for i in range(X_pca.shape[1])])
 cluster_df['Country'] = country_names
 cluster_df['Cluster'] = clusters
+cluster_df.to_csv("国家聚类结果_85.csv")
 
 # === 第八步：可视化聚类结果（前两个主成分）===
 plt.figure(figsize=(10, 6))

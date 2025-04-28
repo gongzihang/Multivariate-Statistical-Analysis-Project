@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.express as px
 
 # === Step 1: 读取聚类结果 CSV 文件 ===
-df = pd.read_csv("国家聚类结果.csv")
+df = pd.read_csv("国家聚类结果_85.csv")
 df['Country'] = df['Country'].str.strip()  # 清理空格
 
 # === Step 2: 清洗国家名称以匹配 Plotly 的标准国家名 ===
