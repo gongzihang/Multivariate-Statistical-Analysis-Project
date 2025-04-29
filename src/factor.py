@@ -38,8 +38,8 @@ plt.savefig("fig_tmp_gzh/碎石土.png", dpi=300, bbox_inches='tight')
 # plt.show()
 # raise
 ##############################################
-fa = FactorAnalyzer(n_factors=2)
-# fa = FactorAnalyzer(n_factors=2, rotation='varimax')
+# fa = FactorAnalyzer(n_factors=2)
+fa = FactorAnalyzer(n_factors=2, rotation='varimax')
 fa.fit(mean_X_scaled)
 
 ev, v = fa.get_eigenvalues()
@@ -51,23 +51,60 @@ loadings = fa.loadings_
 print(loadings)
 
 ################################################################
+# def see_weight():
+#     # 获取因子载荷矩阵并转化为DataFrame
+#     loadings_df = pd.DataFrame(loadings, index=country_mean.columns[1:], columns=[f'Factor{i+1}' for i in range(fa.n_factors)])
+#     # 查看结果
+#     # 创建一个字典，用来存储排序后的因子表
+#     factor_sorted_dict = {}
+
+#     # 对每个因子按权重排序，并将其存储为一个单独的表
+#     for factor in loadings_df.columns:
+#         # 按照每个因子的载荷（绝对值）排序，降序排列
+#         sorted_factor = loadings_df[[factor]].sort_values(by=factor, ascending=False)
+#         factor_sorted_dict[factor] = sorted_factor
+
+#     # 打印排序后的结果（可以选择保存为CSV文件或其他格式）
+#     for factor, sorted_table in factor_sorted_dict.items():
+#         print(f"\n{factor} 排序后的因子载荷:")
+#         print(sorted_table)
+
 def see_weight():
     # 获取因子载荷矩阵并转化为DataFrame
-    loadings_df = pd.DataFrame(loadings, index=country_mean.columns[1:], columns=[f'Factor{i+1}' for i in range(fa.n_factors)])
-    # 查看结果
-    # 创建一个字典，用来存储排序后的因子表
-    factor_sorted_dict = {}
+    loadings_df = pd.DataFrame(
+        loadings, 
+        index=country_mean.columns[1:], 
+        columns=[f'Factor{i+1}' for i in range(fa.n_factors)]
+    )
+    
+    # 创建一个列表，用来收集所有排序后的表
+    all_factors_list = []
 
-    # 对每个因子按权重排序，并将其存储为一个单独的表
+    # 遍历每一个因子
     for factor in loadings_df.columns:
-        # 按照每个因子的载荷（绝对值）排序，降序排列
-        sorted_factor = loadings_df[[factor]].sort_values(by=factor, ascending=False)
-        factor_sorted_dict[factor] = sorted_factor
+        # 按照当前因子载荷的绝对值大小，降序排列
+        sorted_factor = loadings_df[[factor]].reindex(
+            loadings_df[factor].abs().sort_values(ascending=False).index
+        )
+        # 添加一列标记是哪个因子
+        sorted_factor['因子名称'] = factor
+        # 把这一部分存到列表中
+        all_factors_list.append(sorted_factor)
 
-    # 打印排序后的结果（可以选择保存为CSV文件或其他格式）
-    for factor, sorted_table in factor_sorted_dict.items():
-        print(f"\n{factor} 排序后的因子载荷:")
-        print(sorted_table)
+    # 把所有排序好的表上下合并成一个总表
+    final_df = pd.concat(all_factors_list)
+
+    # 把因子名称这一列放到最前面，顺序好看一点
+    final_df = final_df[['因子名称'] + [col for col in final_df.columns if col != '因子名称']]
+
+    # 打印总表
+    print("\n最终汇总后的因子载荷表:")
+    print(final_df)
+
+    # # 保存成一个CSV文件
+    # final_df.to_csv('fig_tmp_gzh\\factor_load\\平均因子分析结果.csv', encoding='utf-8-sig', index=True)
+    # print("\n已保存到文件: all_sorted_loadings.csv")
+
         
 def plot_scatter(factor_scores_df,left_year,right_year,save_path):
     # TODO 美化格式修改这个函数  Re:没什么好美化的
@@ -106,7 +143,7 @@ def draw_scatter(left_year, right_year, save_dir):
 if __name__ =="__main__":
     plt.rcParams['font.family'] = 'SimHei'  # 使用黑体字体，或选择其他支持中文的字体
     see_weight()
-    save_dir = "fig_tmp_lst\\factor_scatter"
-    for left_year in range(1992,2017):
-        right_year = left_year+5
-        draw_scatter(left_year,right_year,save_dir)
+    # save_dir = "fig_tmp_lst\\factor_scatter"
+    # for left_year in range(1992,2017):
+    #     right_year = left_year+5
+    #     draw_scatter(left_year,right_year,save_dir)

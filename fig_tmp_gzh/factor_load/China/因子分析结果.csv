@@ -1,0 +1,55 @@
+﻿,因子名称,Factor1,Factor2,Factor3
+Exports of goods and services,Factor1,0.8973313970068173,,
+Imports of goods and services,Factor1,0.8867612263778627,,
+"Mining, Manufacturing, Utilities (ISIC C-E)",Factor1,0.8604610211248813,,
+"Agriculture, hunting, forestry, fishing (ISIC A-B)",Factor1,0.8443692522681154,,
+Gross capital formation,Factor1,0.8420266605268878,,
+Per capita GNI,Factor1,0.8404234133020734,,
+Gross fixed capital formation (including Acquisitions less disposals of valuables),Factor1,0.839611343182057,,
+Gross National Income(GNI) in USD,Factor1,0.8347275212660037,,
+Total Value Added,Factor1,0.8322750560090715,,
+"Transport, storage and communication (ISIC I)",Factor1,0.831379652799161,,
+"Wholesale, retail trade, restaurants and hotels (ISIC G-H)",Factor1,0.8236643655944506,,
+Construction (ISIC F),Factor1,0.8220405489497677,,
+General government final consumption expenditure,Factor1,0.8208509786855476,,
+Final consumption expenditure,Factor1,0.8165897957865268,,
+Household consumption expenditure (including Non-profit institutions serving households),Factor1,0.8146378759367029,,
+Other Activities (ISIC J-P),Factor1,0.795680634412007,,
+Population,Factor1,0.5023569061877665,,
+Manufacturing (ISIC D),Factor1,0.2918445670751638,,
+Manufacturing (ISIC D),Factor2,,0.7985675492236449,
+Other Activities (ISIC J-P),Factor2,,0.49543585364125464,
+Construction (ISIC F),Factor2,,0.44569328113872253,
+Final consumption expenditure,Factor2,,0.44073074561394715,
+Household consumption expenditure (including Non-profit institutions serving households),Factor2,,0.4406969885595244,
+General government final consumption expenditure,Factor2,,0.4402315905937211,
+"Wholesale, retail trade, restaurants and hotels (ISIC G-H)",Factor2,,0.4348945843670342,
+"Transport, storage and communication (ISIC I)",Factor2,,0.4199499897667139,
+Total Value Added,Factor2,,0.41593634196268375,
+Gross National Income(GNI) in USD,Factor2,,0.41059297356197383,
+Gross fixed capital formation (including Acquisitions less disposals of valuables),Factor2,,0.40870539962752095,
+Gross capital formation,Factor2,,0.4014077080168651,
+Per capita GNI,Factor2,,0.39494212582391125,
+"Mining, Manufacturing, Utilities (ISIC C-E)",Factor2,,0.3360149419940133,
+"Agriculture, hunting, forestry, fishing (ISIC A-B)",Factor2,,0.3357226385571379,
+Imports of goods and services,Factor2,,0.25560700178854173,
+Exports of goods and services,Factor2,,0.2217012201092632,
+Population,Factor2,,-0.0018542607806630402,
+Population,Factor3,,,0.8618214319603353
+"Agriculture, hunting, forestry, fishing (ISIC A-B)",Factor3,,,0.4104168056448838
+Exports of goods and services,Factor3,,,0.38291800540166976
+Imports of goods and services,Factor3,,,0.38207108752526026
+"Mining, Manufacturing, Utilities (ISIC C-E)",Factor3,,,0.3798286871618513
+Household consumption expenditure (including Non-profit institutions serving households),Factor3,,,0.3749271563599696
+Final consumption expenditure,Factor3,,,0.3710270857617901
+Per capita GNI,Factor3,,,0.37056540077030237
+Gross National Income(GNI) in USD,Factor3,,,0.3664142161035118
+Total Value Added,Factor3,,,0.3661773294130762
+"Wholesale, retail trade, restaurants and hotels (ISIC G-H)",Factor3,,,0.36302693753997695
+General government final consumption expenditure,Factor3,,,0.3620327538267335
+Gross capital formation,Factor3,,,0.3589267962788206
+Gross fixed capital formation (including Acquisitions less disposals of valuables),Factor3,,,0.35670291671357945
+Construction (ISIC F),Factor3,,,0.3545877898263459
+"Transport, storage and communication (ISIC I)",Factor3,,,0.35378537417491823
+Other Activities (ISIC J-P),Factor3,,,0.34408713498415183
+Manufacturing (ISIC D),Factor3,,,-0.010021442525517916
