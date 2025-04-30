@@ -88,7 +88,7 @@ def Check(mean_X_scaled, path):
     # print(ev)
     plt.figure(figsize=(6, 4))  # 创建一个新的图
     plt.plot(range(1, len(ev)+1), ev, marker='o')
-    plt.title('Scree Plot')
+    # plt.title('Scree Plot')
     plt.xlabel('因子个数')
     plt.ylabel('特征值')
     plt.grid()
@@ -130,7 +130,7 @@ def see_weight(fa, loadings, path):
     final_df.to_csv(path, encoding='utf-8-sig', index=True)
     print(f"\n已保存到文件: {path}")
 
-def visualize_factor_regression_list(df, loadings=None, path=None):
+def visualize_factor_regression_list(df, loadings=None, path=None, name_list=None):
     """
     df: 包含 'Year', 'GDP', 'Factor1', 'Factor2' 四列
     loadings: 可选 DataFrame，格式如下：
@@ -147,6 +147,42 @@ def visualize_factor_regression_list(df, loadings=None, path=None):
         - 因子载荷图（如提供）
         - 控制台输出 R²、调整后 R²、MSE
     """
+    def plot_factors_with_custom_names(df, year_col='Year', exclude_cols=['GDP']):
+        """
+        绘制多个因子得分随年份变化图。如果存在因子中文名称列，则使用中文名称；否则使用列名。
+
+        参数:
+            df: pandas DataFrame，包含年份、因子得分、（可选）因子中文名称
+            year_col: 年份列名（如 'Year'）
+            name_col: 因子中文名称列（如 '因子名称'），每个值对应一个因子列
+            exclude_cols: 排除的非因子列（如 'GDP'）
+        """
+        # 选出因子列（即非 year/GDP/因子名称等列）
+        factor_cols = [col for col in df.columns if col not in [year_col] + exclude_cols]
+        
+        # 判断是否存在因子名称列
+        if name_list is not None:
+            # 获取前 len(factor_cols) 个因子名称，并与因子列一一对应
+            factor_names = name_list[:len(factor_cols)]
+            name_map = dict(zip(factor_cols, factor_names))  # 例如 {'Factor1': '对外贸易', ...}
+        else:
+            name_map = {col: col for col in factor_cols}  # 使用默认列名
+
+        # 绘图
+        plt.figure(figsize=(12, 6))
+        for col in factor_cols:
+            plt.plot(df[year_col], df[col], label=name_map[col], marker='o')
+        
+        plt.xlabel('时间')
+        plt.ylabel('因子得分')
+        # plt.title('因子得分随年份变化')
+        plt.legend(loc='best')
+        plt.grid(True)
+        plt.tight_layout()
+        # plt.show()
+        plt.savefig(os.path.join(path,"因子得分时间图.png"), dpi=300, bbox_inches='tight')
+
+    
     def compute_vif(df):
         X = df.iloc[:, 1:-1]
         X = sm.add_constant(X)
@@ -166,40 +202,75 @@ def visualize_factor_regression_list(df, loadings=None, path=None):
         # 画热力图
         plt.figure(figsize=(6, 6))
         sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f", square=True)
-        plt.title("因子相关性热力图")
+        # plt.title("因子相关性热力图")
         plt.tight_layout()
         # plt.show()
         plt.savefig(os.path.join(path,"因子间相关系数矩阵.png"), dpi=300, bbox_inches='tight')
         
-    # 内部函数 1：拟合回归模型
+    # # 内部函数 1：拟合回归模型
+    # def fit_regression(df):
+    #     X = df.iloc[:, 1:-1]
+    #     y = df['GDP']
+    #     name_list = X.columns
+    #     check_multicollinearity(df)
+    #     compute_vif(df)
+    #     model = LinearRegression().fit(X, y)
+    #     y_pred = model.predict(X)
+    #     df['GDP_pred'] = y_pred
+    #     df['residual'] = y - y_pred
+
+    #     # 模型评估指标
+    #     r2 = r2_score(y, y_pred)
+    #     adj_r2 = 1 - (1 - r2) * (len(y) - 1) / (len(y) - X.shape[1] - 1)
+    #     mse = mean_squared_error(y, y_pred)
+        
+    #     # 输出模型摘要（含 t 统计量、p 值、置信区间等）
+    #     print(model.summary())
+        
+    #     print(f"模型评估结果：")
+    #     print(f"  R²            : {r2:.4f}")
+    #     print(f"  调整后 R²     : {adj_r2:.4f}")
+    #     print(f"  MSE（均方误差）: {mse:.4f}")
+    #     print(f"回归系数：")
+    #     for i in range(len(name_list)):
+    #         print(f"  {name_list[i]} 系数  : {model.coef_[i]:.4f}")
+    #     # print(f"  Factor2 系数  : {model.coef_[1]:.4f}")
+    #     print(f"  截距（Intercept） : {model.intercept_:.4f}")
+    #     print()
+
+    #     return model, df
+
     def fit_regression(df):
-        X = df.iloc[:, 1:-1]
-        y = df['GDP']
-        name_list = X.columns
         check_multicollinearity(df)
         compute_vif(df)
-        model = LinearRegression().fit(X, y)
-        y_pred = model.predict(X)
-        df['GDP_pred'] = y_pred
-        df['residual'] = y - y_pred
+        # 假设 df 包含：Year、GDP、Factor1、Factor2、...、FactorN
+        X = df.iloc[:, 1:-1]  # 去掉 'Year' 和 'GDP'，保留因子列
+        y = df['GDP']
+        # 加常数项（Intercept）
+        X_with_const = sm.add_constant(X)
 
-        # 模型评估指标
-        r2 = r2_score(y, y_pred)
-        adj_r2 = 1 - (1 - r2) * (len(y) - 1) / (len(y) - X.shape[1] - 1)
-        mse = mean_squared_error(y, y_pred)
+        # 用 statsmodels 拟合 OLS 模型
+        model = sm.OLS(y, X_with_const).fit()
+
+        # 添加预测值和残差
+        df['GDP_pred'] = model.fittedvalues
+        df['residual'] = model.resid
+
+        # 打印统计摘要（含 t 检验、p 值等）
+        print(model.summary())
+
+        # 也可以单独输出评价指标
+        r2 = model.rsquared
+        adj_r2 = model.rsquared_adj
+        mse = mean_squared_error(y, model.fittedvalues)
         
-        print(f"模型评估结果：")
+        print(f"\n模型评估结果：")
         print(f"  R²            : {r2:.4f}")
         print(f"  调整后 R²     : {adj_r2:.4f}")
         print(f"  MSE（均方误差）: {mse:.4f}")
-        print(f"回归系数：")
-        for i in range(len(name_list)):
-            print(f"  {name_list[i]} 系数  : {model.coef_[i]:.4f}")
-        # print(f"  Factor2 系数  : {model.coef_[1]:.4f}")
-        print(f"  截距（Intercept） : {model.intercept_:.4f}")
-        print()
 
         return model, df
+
 
     # 图1：实际 vs 预测 GDP
     def plot_actual_vs_pred(df):
@@ -208,7 +279,7 @@ def visualize_factor_regression_list(df, loadings=None, path=None):
         sns.lineplot(x='Year', y='GDP_pred', data=df, color='red', label="预测 GDP")
         plt.xlabel('年份')
         plt.ylabel('GDP')
-        plt.title('实际 GDP 与 预测 GDP 对比')
+        # plt.title('实际 GDP 与 预测 GDP 对比')
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
@@ -220,7 +291,7 @@ def visualize_factor_regression_list(df, loadings=None, path=None):
     def plot_qq(df):
         plt.figure(figsize=(6, 6))
         sm.qqplot(df['residual'], line='s')
-        plt.title('残差 QQ 图（正态性检验）')
+        # plt.title('残差 QQ 图（正态性检验）')
         plt.tight_layout()
         # plt.show()
         plt.savefig(os.path.join(path,"残差QQ图.png"), dpi=300, bbox_inches='tight')
@@ -234,12 +305,12 @@ def visualize_factor_regression_list(df, loadings=None, path=None):
         plt.subplot(1, 2, 1)
         sns.regplot(x='Factor1', y='GDP', data=df,
                     scatter_kws={"s": 40}, line_kws={"color": "red"})
-        plt.title('GDP vs Factor1')
+        # plt.title('GDP vs Factor1')
 
         plt.subplot(1, 2, 2)
         sns.regplot(x='Factor2', y='GDP', data=df,
                     scatter_kws={"s": 40}, line_kws={"color": "red"})
-        plt.title('GDP vs Factor2')
+        # plt.title('GDP vs Factor2')
 
         plt.tight_layout()
         # plt.show()
@@ -256,19 +327,58 @@ def visualize_factor_regression_list(df, loadings=None, path=None):
             sub = loadings[['因子名称', factor]].dropna().sort_values(factor, ascending=True)
             plt.barh(sub['因子名称'], sub[factor], label=factor, alpha=0.7)
         plt.xlabel('载荷值')
-        plt.title('因子载荷图')
+        # plt.title('因子载荷图')
         plt.legend()
         plt.tight_layout()
         # plt.show()
         plt.savefig(os.path.join(path,"因子载荷图.png"), dpi=300, bbox_inches='tight')
+    
+    def plot_factor_loadings_2(loadings):
+        if loadings is None:
+            return
+
+        # 中英文名称映射
+        name_map = {
+            'Exports of goods and services': '货物与服务出口',
+            'Imports of goods and services': '货物与服务进口',
+            'Agriculture, hunting, forestry, fishing (ISIC A-B)': '农林渔业',
+            'Mining, Manufacturing, Utilities (ISIC C-E)': '采矿制造及公用事业',
+            'Per capita GNI': '人均国民总收入',
+            'Gross capital formation': '资本形成总额',
+            'Gross National Income(GNI) in USD': '国民总收入（美元）',
+            'Gross fixed capital formation (including Acquisitions less disposals of valuables)': '固定资本形成总额',
+            'Total Value Added': '增加值总额',
+            'Transport, storage and communication (ISIC I)': '交通运输与通信',
+            'Wholesale, retail trade, restaurants and hotels (ISIC G-H)': '批发零售与住宿餐饮',
+            'Household consumption expenditure (including Non-profit institutions serving households)': '居民消费支出',
+            'Final consumption expenditure': '最终消费支出',
+            'General government final consumption expenditure': '政府最终消费支出',
+            'Construction (ISIC F)': '建筑业',
+            'Other Activities (ISIC J-P)': '其他行业',
+            'Population': '人口',
+            'Manufacturing (ISIC D)': '制造业',
+        }
+
+        # 替换成中文名称
+        loadings['因子名称'] = loadings['因子名称'].map(name_map)
+        plt.figure(figsize=(10, 7))
+        for i, factor in enumerate(loadings.columns[1:]):
+            sub = loadings[['因子名称', factor]].dropna().sort_values(factor, ascending=True)
+            plt.barh(sub['因子名称'], sub[factor], label=factor, alpha=0.7)
         
+        plt.xlabel('载荷值')
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(os.path.join(path, "因子载荷图2.png"), dpi=300, bbox_inches='tight')
 
     # --- 主流程 ---
+    plot_factors_with_custom_names(df)
     model, df = fit_regression(df)
     plot_actual_vs_pred(df)
     plot_qq(df)
     plot_gdp_vs_factors(df)
     plot_factor_loadings(loadings)
+    plot_factor_loadings_2(loadings)
 
 ################################## USA ######################################
 print("="*20, "Factor of USA", "="*20)
@@ -327,13 +437,14 @@ factor_scores = fa.transform(X_scaled)
 Reg_df['Factor1'] = factor_scores[:, 0]
 Reg_df['Factor2'] = factor_scores[:, 1]
 Reg_df["GDP"] = gdp
+name_list = ["经济规模与生产活动因子得分", "国际贸易与资源依赖因子得分"]
 
 feature_names = df.columns[0:-1]  # 原始变量名
 loadings_df = pd.DataFrame(loadings, columns=['Factor1', 'Factor2'])
 loadings_df.insert(0, '因子名称', feature_names)
 
 # 回归分析并可视化
-visualize_factor_regression_list(Reg_df, loadings_df, USA_path)
+visualize_factor_regression_list(Reg_df, loadings_df, USA_path,name_list)
 
 print("+"*50)
 print("\n")
@@ -360,10 +471,10 @@ X_scaled = X_scaled[:,:-1]
 # 展示碎石土挑选因子
 path = os.path.join(China_path,"碎石土.png")
 Check(X_scaled,path)
-print("[INFO] choose Factor number 3 ")
+print("[INFO] choose Factor number 2 ")
 
 # 因子分析
-fa = FactorAnalyzer(n_factors=3, rotation='varimax')
+fa = FactorAnalyzer(n_factors=2, rotation='varimax')
 fa.fit(X_scaled)
 
 ev, v = fa.get_eigenvalues()
@@ -382,15 +493,15 @@ factor_scores = fa.transform(X_scaled)
 # 构造回归分析表
 Reg_df['Factor1'] = factor_scores[:, 0]
 Reg_df['Factor2'] = factor_scores[:, 1]
-Reg_df['Factor3'] = factor_scores[:, 2]
+# Reg_df['Factor3'] = factor_scores[:, 2]
 Reg_df["GDP"] = gdp
-
+name_list = ["对外依存的资源导向型经济结构得分", "内部驱动的工业化路径得分"]
 feature_names = df.columns[0:-1]  # 原始变量名
-loadings_df = pd.DataFrame(loadings, columns=['Factor1', 'Factor2', 'Factor3'])
+loadings_df = pd.DataFrame(loadings, columns=['Factor1', 'Factor2'])
 loadings_df.insert(0, '因子名称', feature_names)
 
 # 回归分析并可视化
-visualize_factor_regression_list(Reg_df, loadings_df, China_path)
+visualize_factor_regression_list(Reg_df, loadings_df, China_path,name_list)
 
 print("+"*50)
 print("\n")
@@ -465,13 +576,13 @@ Reg_df['Factor2'] = factor_scores[:, 1]
 Reg_df['Factor3'] = factor_scores[:, 2]
 Reg_df['Factor4'] = factor_scores[:, 3]
 Reg_df["GDP"] = gdp
-print(Reg_df)
+name_list = ["实体经济发展因子", "国际贸易与消费因子","农业与人口因子", "政府支出与社会服务因子"]
 feature_names = df.columns[0:-1]  # 原始变量名
 loadings_df = pd.DataFrame(loadings, columns=['Factor1', 'Factor2', 'Factor3', 'Factor4'])
 loadings_df.insert(0, '因子名称', feature_names)
 
 # 回归分析并可视化
-visualize_factor_regression_list(Reg_df, loadings_df, Japan_UK_path)
+visualize_factor_regression_list(Reg_df, loadings_df, Japan_UK_path,name_list)
 
 print("+"*50)
 print("\n")
@@ -544,8 +655,8 @@ factor_scores = fa.transform(X_scaled)
 # 构造回归分析表
 Reg_df['Factor1'] = factor_scores[:, 0]
 Reg_df['Factor2'] = factor_scores[:, 1]
-# Reg_df['Factor3'] = factor_scores[:, 2]
-# Reg_df['Factor4'] = factor_scores[:, 3]
+Reg_df['Factor3'] = factor_scores[:, 2]
+Reg_df['Factor4'] = factor_scores[:, 3]
 Reg_df['Factor5'] = factor_scores[:, 4]
 Reg_df["GDP"] = gdp
 feature_names = df.columns[0:-1]  # 原始变量名
